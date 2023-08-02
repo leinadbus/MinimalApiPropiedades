@@ -20,16 +20,19 @@ if (app.Environment.IsDevelopment())
 
 //Primeros EndPoints
 //Obtener todas las propiedades - GET - MapGet
-app.MapGet("/api/propiedades", () =>
+app.MapGet("/api/propiedades", (ILogger<Program> logger) =>
 {
+    //Usar el logger como ejemplo de inyección de dependencias
+    logger.Log(LogLevel.Information, "Carga todas las propiedades");
+
     return Results.Ok(DatosPropiedad.listaPropiedades);
-});
+}).WithName("ObtenerPorpiedades"); ;
 
 //Obtener propiedad individual - GET - MapGet
 app.MapGet("/api/propiedades/{id:int}", (int id) =>
 {
     return Results.Ok(DatosPropiedad.listaPropiedades.FirstOrDefault(p => p.IdPropiedad == id));
-});
+}).WithName("ObtenerPorpiedad");
 
 //Crear propiedad 
 app.MapPost("/api/crearPropiedad", ([FromBody] Propiedad propiedad) =>
@@ -46,8 +49,13 @@ app.MapPost("/api/crearPropiedad", ([FromBody] Propiedad propiedad) =>
     }
     propiedad.IdPropiedad = DatosPropiedad.listaPropiedades.OrderByDescending(p => p.IdPropiedad).FirstOrDefault().IdPropiedad +1;
     DatosPropiedad.listaPropiedades.Add(propiedad);
-    return Results.Ok(DatosPropiedad.listaPropiedades);
-});
+    //return Results.Ok(DatosPropiedad.listaPropiedades);
+
+    //return Results.Created($"/api/propiedades/{propiedad.IdPropiedad}", propiedad);
+
+    return Results.CreatedAtRoute($"ObtenerPorpiedad", new { id = propiedad.IdPropiedad}, propiedad);
+
+}).WithName("CrearPorpiedad"); ;
 
 app.UseHttpsRedirection();
 
