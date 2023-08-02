@@ -26,13 +26,13 @@ app.MapGet("/api/propiedades", (ILogger<Program> logger) =>
     logger.Log(LogLevel.Information, "Carga todas las propiedades");
 
     return Results.Ok(DatosPropiedad.listaPropiedades);
-}).WithName("ObtenerPorpiedades"); ;
+}).WithName("ObtenerPorpiedades").Produces<IEnumerable<Propiedad>>(200); 
 
 //Obtener propiedad individual - GET - MapGet
 app.MapGet("/api/propiedades/{id:int}", (int id) =>
 {
     return Results.Ok(DatosPropiedad.listaPropiedades.FirstOrDefault(p => p.IdPropiedad == id));
-}).WithName("ObtenerPorpiedad");
+}).WithName("ObtenerPorpiedad").Produces<Propiedad>(200);
 
 //Crear propiedad 
 app.MapPost("/api/crearPropiedad", ([FromBody] Propiedad propiedad) =>
@@ -55,7 +55,7 @@ app.MapPost("/api/crearPropiedad", ([FromBody] Propiedad propiedad) =>
 
     return Results.CreatedAtRoute($"ObtenerPorpiedad", new { id = propiedad.IdPropiedad}, propiedad);
 
-}).WithName("CrearPorpiedad"); ;
+}).WithName("CrearPorpiedad").Accepts<Propiedad>("application/json").Produces<Propiedad>(201).Produces(400); 
 
 app.UseHttpsRedirection();
 
