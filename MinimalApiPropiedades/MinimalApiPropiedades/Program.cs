@@ -116,7 +116,7 @@ app.MapPost("/api/crearPropiedad", async (ApplicationDbContext _bd, IMapper _map
 
 
 
-app.MapPut("/api/actualizarPropiedad", (IMapper _mapper,
+app.MapPut("/api/actualizarPropiedad", async(ApplicationDbContext _bd, IMapper _mapper,
     IValidator<ActualizarPropiedadDto> _validacion, [FromBody] ActualizarPropiedadDto actualizarPropiedadDto) =>
 {
 
@@ -131,11 +131,13 @@ app.MapPut("/api/actualizarPropiedad", (IMapper _mapper,
         return Results.BadRequest(respuesta);
     }
 
-    Propiedad propiedadDesdeBD = DatosPropiedad.listaPropiedades.FirstOrDefault(p => p.IdPropiedad == actualizarPropiedadDto.IdPropiedad);
+    Propiedad propiedadDesdeBD = await _bd.Propiedad.FirstOrDefaultAsync(p => p.IdPropiedad == actualizarPropiedadDto.IdPropiedad);
     propiedadDesdeBD.Nombre = actualizarPropiedadDto.Nombre;
     propiedadDesdeBD.Descripcion = actualizarPropiedadDto.Descripcion;
     propiedadDesdeBD.Ubicacion = actualizarPropiedadDto.Ubicacion;
     propiedadDesdeBD.Activa = actualizarPropiedadDto.Activa;
+
+    await _bd.SaveChangesAsync();
 
     respuesta.Resultado = _mapper.Map<PropiedadDto>(propiedadDesdeBD);
     respuesta.Success = true;
