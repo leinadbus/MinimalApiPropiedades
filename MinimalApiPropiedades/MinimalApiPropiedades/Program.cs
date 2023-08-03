@@ -150,16 +150,19 @@ app.MapPut("/api/actualizarPropiedad", async(ApplicationDbContext _bd, IMapper _
 
 
 //Borrar propiedad individual
-app.MapDelete("/api/propiedades/{id:int}", (int id) =>
+app.MapDelete("/api/propiedades/{id:int}", async (ApplicationDbContext _bd, int id) =>
 {
 
     RespuestasApi respuesta = new() { Success = false, codigoEstado = HttpStatusCode.BadRequest }; ;
 
     //Obtener el Id de la propiedad a eliminar
-    Propiedad propiedadDesdeBD = DatosPropiedad.listaPropiedades.FirstOrDefault(p => p.IdPropiedad == id);
+    Propiedad propiedadDesdeBD = await _bd.Propiedad.FirstOrDefaultAsync(p => p.IdPropiedad == id);
+
     if (propiedadDesdeBD != null)
     {
-        DatosPropiedad.listaPropiedades.Remove(propiedadDesdeBD);
+        _bd.Propiedad.Remove(propiedadDesdeBD);
+        await _bd.SaveChangesAsync();
+
         respuesta.Success = true;
         respuesta.codigoEstado = HttpStatusCode.NoContent;
 
