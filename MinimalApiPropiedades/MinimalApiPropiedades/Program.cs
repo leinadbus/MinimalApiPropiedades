@@ -54,11 +54,11 @@ app.MapGet("/api/propiedades", async (ApplicationDbContext _bd, ILogger<Program>
 
 
 //Obtener propiedad individual - GET - MapGet
-app.MapGet("/api/propiedades/{id:int}", (int id) =>
+app.MapGet("/api/propiedades/{id:int}", async (ApplicationDbContext _bd, int id) =>
 {
     RespuestasApi respuesta = new();
 
-    respuesta.Resultado = DatosPropiedad.listaPropiedades.FirstOrDefault(p => p.IdPropiedad == id);
+    respuesta.Resultado = await _bd.Propiedad.FirstOrDefaultAsync(p => p.IdPropiedad == id);
     if(respuesta.Resultado == null)
     {
         respuesta.Success = false;
