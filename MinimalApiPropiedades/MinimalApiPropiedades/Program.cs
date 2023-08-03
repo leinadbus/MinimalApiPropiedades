@@ -143,6 +143,30 @@ app.MapPut("/api/actualizarPropiedad", (IMapper _mapper,
 
 
 
+//Borrar propiedad individual
+app.MapDelete("/api/propiedades/{id:int}", (int id) =>
+{
+
+    RespuestasApi respuesta = new() { Success = false, codigoEstado = HttpStatusCode.BadRequest }; ;
+
+    //Obtener el Id de la propiedad a eliminar
+    Propiedad propiedadDesdeBD = DatosPropiedad.listaPropiedades.FirstOrDefault(p => p.IdPropiedad == id);
+    if (propiedadDesdeBD != null)
+    {
+        DatosPropiedad.listaPropiedades.Remove(propiedadDesdeBD);
+        respuesta.Success = true;
+        respuesta.codigoEstado = HttpStatusCode.NoContent;
+
+        return Results.Ok(respuesta);
+    }
+    else
+    {
+        respuesta.Errores.Add("El Id de la propiedad es Invalido");
+    return Results.BadRequest(respuesta);
+    }
+});
+
+
 app.UseHttpsRedirection();
 
 app.Run();
