@@ -76,7 +76,7 @@ app.MapGet("/api/propiedades/{id:int}", async (ApplicationDbContext _bd, int id)
 
 
 //Crear propiedad 
-app.MapPost("/api/crearPropiedad", (IMapper _mapper, 
+app.MapPost("/api/crearPropiedad", async (ApplicationDbContext _bd, IMapper _mapper, 
     IValidator<CrearPropiedadDto> _validacion , [FromBody] CrearPropiedadDto crearPropiedadDto) =>
 {
 
@@ -91,20 +91,20 @@ app.MapPost("/api/crearPropiedad", (IMapper _mapper,
         return Results.BadRequest(respuesta);
     }
     //Validar si el nombre ya existe
-    if(DatosPropiedad.listaPropiedades.FirstOrDefault(p => p.Nombre.ToLower() == crearPropiedadDto.Nombre.ToLower()) != null)
+    if(await _bd.Propiedad.FirstOrDefaultAsync(p => p.Nombre.ToLower() == crearPropiedadDto.Nombre.ToLower()) != null)
     {
         respuesta.Errores.Add("El nombre ya está registrado");
         return Results.BadRequest(respuesta);
     }
 
     Propiedad propiedad =_mapper.Map<Propiedad>(crearPropiedadDto);
-
-    propiedad.IdPropiedad = DatosPropiedad.listaPropiedades.OrderByDescending(p => p.IdPropiedad).FirstOrDefault().IdPropiedad +1;
-    DatosPropiedad.listaPropiedades.Add(propiedad);
-
+    propiedad.FechaCreacion = DateTime.Now;
+   
+    await _bd.Propiedad.AddAsync(propiedad);
+    await _bd.SaveChangesAsync();
     PropiedadDto propiedadDto = _mapper.Map<PropiedadDto>(propiedad);
 
-    //return Results.CreatedAtRoute($"ObtenerPorpiedad", new { id = propiedad.IdPropiedad}, propiedadDto);
+   
 
     respuesta.Resultado = propiedadDto;
     respuesta.Success = true;
