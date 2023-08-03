@@ -37,13 +37,13 @@ if (app.Environment.IsDevelopment())
 
 //Primeros EndPoints
 //Obtener todas las propiedades - GET - MapGet
-app.MapGet("/api/propiedades", (ILogger<Program> logger) =>
+app.MapGet("/api/propiedades", async (ApplicationDbContext _bd, ILogger<Program> logger) =>
 {
     RespuestasApi respuesta = new();
     //Usar el logger como ejemplo de inyección de dependencias
     logger.Log(LogLevel.Information, "Carga todas las propiedades");
 
-    respuesta.Resultado = DatosPropiedad.listaPropiedades;
+    respuesta.Resultado = _bd.Propiedad;
     respuesta.Success = true;
     respuesta.codigoEstado = HttpStatusCode.OK;
 
