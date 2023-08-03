@@ -1,6 +1,7 @@
 using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MinimalApiPropiedades.Data;
 using MinimalApiPropiedades.Mapper;
 using MinimalApiPropiedades.Models;
@@ -8,6 +9,9 @@ using MinimalApiPropiedades.Models.DTOS;
 using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
+
+//Configuración de la conexión a la Base de Datos
+builder.Services.AddDbContext<ApplicationDbContext>(opciones => opciones.UseSqlServer(builder.Configuration.GetConnectionString("ConexionSql")));
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
