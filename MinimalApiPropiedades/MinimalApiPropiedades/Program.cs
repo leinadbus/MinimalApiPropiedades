@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MinimalApiPropiedades.Data;
 using MinimalApiPropiedades.Models;
+using MinimalApiPropiedades.Models.DTOS;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,27 +36,48 @@ app.MapGet("/api/propiedades/{id:int}", (int id) =>
 }).WithName("ObtenerPorpiedad").Produces<Propiedad>(200);
 
 //Crear propiedad 
-app.MapPost("/api/crearPropiedad", ([FromBody] Propiedad propiedad) =>
+app.MapPost("/api/crearPropiedad", ([FromBody] CrearPropiedadDto crearPropiedadDto) =>
 {
     //Validar id de propiedad y nombre no null
-    if(propiedad.IdPropiedad != 0 || string.IsNullOrEmpty(propiedad.Nombre))
+    if(string.IsNullOrEmpty(crearPropiedadDto.Nombre))
     {
         return Results.BadRequest("IdPropiedad incorrecto o nombre vacío");
     }
     //Validar si el nombre ya existe
-    if(DatosPropiedad.listaPropiedades.FirstOrDefault(p => p.Nombre.ToLower() == propiedad.Nombre.ToLower()) != null)
+    if(DatosPropiedad.listaPropiedades.FirstOrDefault(p => p.Nombre.ToLower() == crearPropiedadDto.Nombre.ToLower()) != null)
     {
         return Results.BadRequest("El nombre ya está registrado");
     }
+
+    Propiedad propiedad = new Propiedad()
+    {
+        Nombre = crearPropiedadDto.Nombre,
+        Descripcion = crearPropiedadDto.Descripcion,
+        Ubicacion = crearPropiedadDto.Ubicacion,
+        Activa = crearPropiedadDto.Activa
+    };
+
     propiedad.IdPropiedad = DatosPropiedad.listaPropiedades.OrderByDescending(p => p.IdPropiedad).FirstOrDefault().IdPropiedad +1;
     DatosPropiedad.listaPropiedades.Add(propiedad);
+
     //return Results.Ok(DatosPropiedad.listaPropiedades);
 
     //return Results.Created($"/api/propiedades/{propiedad.IdPropiedad}", propiedad);
 
-    return Results.CreatedAtRoute($"ObtenerPorpiedad", new { id = propiedad.IdPropiedad}, propiedad);
 
-}).WithName("CrearPorpiedad").Accepts<Propiedad>("application/json").Produces<Propiedad>(201).Produces(400); 
+    PropiedadDto propiedadDto = new ()
+    {
+        IdPropiedad = propiedad.IdPropiedad,
+        Nombre = propiedad.Nombre,
+        Descripcion = propiedad.Descripcion,
+        Ubicacion = propiedad.Ubicacion,
+        Activa = propiedad.Activa
+    };
+
+
+    return Results.CreatedAtRoute($"ObtenerPorpiedad", new { id = propiedad.IdPropiedad}, propiedadDto);
+
+}).WithName("CrearPorpiedad").Accepts<CrearPropiedadDto>("application/json").Produces<PropiedadDto>(201).Produces(400); 
 
 app.UseHttpsRedirection();
 
