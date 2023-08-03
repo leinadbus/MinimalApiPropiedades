@@ -55,8 +55,15 @@ app.MapGet("/api/propiedades/{id:int}", (int id) =>
     RespuestasApi respuesta = new();
 
     respuesta.Resultado = DatosPropiedad.listaPropiedades.FirstOrDefault(p => p.IdPropiedad == id);
-    respuesta.Success = true;
-    respuesta.codigoEstado = HttpStatusCode.OK;
+    if(respuesta.Resultado == null)
+    {
+        respuesta.Success = false;
+        respuesta.codigoEstado = HttpStatusCode.BadRequest;
+        return Results.BadRequest(respuesta);
+    }
+
+        respuesta.Success = true;
+        respuesta.codigoEstado = HttpStatusCode.OK;
 
     return Results.Ok(respuesta);
 
